@@ -21,7 +21,7 @@ import signal
 import time
 import sys
 
-from benchsuite.scheduler.bsscheduler import create_bsscheduler, get_bsscheduler
+from benchsuite.scheduler import get_bsscheduler, create_bsscheduler
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def main(args=None):
     # scheduler is shut down from a SIGINT (see on_exit function)
     #bsscheduler.scheduler._thread.join()
 
-    bsscheduler.wai_unitl_shutdown()
+    bsscheduler.wait_unitl_shutdown()
 
 
 

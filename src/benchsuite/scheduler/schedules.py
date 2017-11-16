@@ -20,8 +20,6 @@ import logging
 
 from pymongo import MongoClient
 
-from benchsuite.scheduler.config import BenchsuiteSchedulerConfig
-
 logger = logging.getLogger(__name__)
 
 _DEFAULT_INTERVAL = {
@@ -62,17 +60,17 @@ class BenchmarkingScheduleConfig(object):
 
 
 
-class BenchmarkingScheduleConfigDB(object):
+class BenchmarkingSchedulesDB(object):
 
-    _config = None
 
-    def __init__(self, config: BenchsuiteSchedulerConfig):
-        self._client = MongoClient(config.schedules_db_host)
-        self._config = config
+    def __init__(self, db_host, db_name, collection):
+        self._client = MongoClient(db_host)
+        self._db_name = db_name
+        self._collection = collection
 
     def get_benchmarking_schedules(self):
         out = []
-        for r in self._client[self._config.schedules_db_name][self._config.schedules_collection].find():
+        for r in self._client[self._db_name][self._collection].find():
             try:
                 out.append(BenchmarkingScheduleConfig(r))
             except:

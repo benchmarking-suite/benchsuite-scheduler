@@ -58,7 +58,7 @@ setup(
     namespace_packages=['benchsuite'],
     package_dir={'': 'src'},
     entry_points={
-        'console_scripts': ['benchsuite-scheduler=benchsuite.scheduler.main:main'],
+        'console_scripts': ['benchsuite-scheduler=benchsuite.scheduler.cli:main'],
     },
 
     install_requires=['apscheduler']

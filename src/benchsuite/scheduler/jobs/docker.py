@@ -16,28 +16,13 @@
 #
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
-import logging
 
-from benchsuite.scheduler.synchronizer import sync_jobs
 
-logger = logging.getLogger(__name__)
+def docker_job(param1, param2):
+    print('Fake docker jobs')
 
-def synch_scheduled_jobs():
-    """
-    This function is scheduled as job and periodically
-    syncrhonize the jobs in the scheduler with the schedules db
-    """
+    raise ValueError('this error occurred bla bla bla')
 
-    from benchsuite.scheduler.bsscheduler import get_bsscheduler
-    schedules = get_bsscheduler().schedules_db.get_benchmarking_schedules()
 
-    print('Found {0} schedules'.format(len(schedules)))
-
-    sync_jobs(schedules, get_bsscheduler().scheduler)
-
-def print_scheduled_jobs():
-
-    from benchsuite.scheduler.bsscheduler import get_bsscheduler
-    get_bsscheduler().scheduler.print_jobs()
-
+    return 123
 

@@ -24,28 +24,31 @@ from apscheduler.job import Job
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from benchsuite.scheduler.job.docker import docker_job
-from benchsuite.scheduler.schedulesconfig import BenchmarkingScheduleConfig, \
-    BenchmarkingScheduleConfigDB
+from benchsuite.scheduler.jobs.docker import docker_job
+from benchsuite.scheduler.schedules import BenchmarkingScheduleConfig, \
+    BenchmarkingSchedulesDB
 
 logger = logging.getLogger(__name__)
 
 
 JOB_ID_PREFIX = 'ap-'
 
+
 def schedule_new_job(
         schedule: BenchmarkingScheduleConfig,
         scheduler: BaseScheduler):
     """
-    schedule a new job starting from a schedule
+    schedule a new jobs starting from a schedule
     :param schedule:
     :param scheduler:
     :return:
     """
 
+    assert schedule.interval, '"interval" field in the schedule cannot be None'
+
     id = JOB_ID_PREFIX + schedule.id
     trigger = IntervalTrigger(**schedule.interval)
-    args = ['fake', 'args']
+    args = ['fake','param2']
 
     j = scheduler.add_job(docker_job, trigger=trigger, id=id, args=args,
                           jobstore='benchmarking_jobs')
@@ -54,9 +57,9 @@ def schedule_new_job(
                 'for schedule %s', str(j), j.id, schedule.id)
 
 
-def update_job(job: Job, schedule: BenchmarkingScheduleConfigDB):
+def update_job(job: Job, schedule: BenchmarkingSchedulesDB):
     """
-    updates the scheduling interval and parameters of a scheduled job based on
+    updates the scheduling interval and parameters of a scheduled jobs based on
     updated data in a schedule. The update is performed only if needed
     :param job:
     :param schedule:
@@ -105,13 +108,13 @@ def sync_jobs(
     for id in jobs.keys():
 
         if id in schedules:
-            # the scheduled job appears in the schedules db.
+            # the scheduled jobs appears in the schedules db.
             # check if the parameters are the same otherwise, update it
             # (do not update always to avoid rescheduling and calls to the db)
             update_job(jobs[id], schedules[id])
 
         else:
-            # the scheduled job does not exist in the schedules db
+            # the scheduled jobs does not exist in the schedules db
             # this means that it has been deleted from the schedules db and must
             # be deleted from here also
             logger.info('[REMOVE] Job %s removed '
