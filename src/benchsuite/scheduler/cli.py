@@ -21,7 +21,7 @@ import signal
 import time
 import sys
 
-from benchsuite.scheduler import get_bsscheduler, create_bsscheduler
+from benchsuite.scheduler.bsscheduler import get_bsscheduler, create_bsscheduler
 
 logger = logging.getLogger(__name__)
 

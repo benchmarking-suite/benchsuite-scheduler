@@ -30,6 +30,35 @@ from benchsuite.scheduler.schedules import BenchmarkingSchedulesDB
 logger = logging.getLogger(__name__)
 
 
+
+# we want to have a global instance of BSScheduler so that jobs can access it
+# we do not want to specify the BSScheduler instance as jobs parameters because
+# in this case it would be serialized in the jobs status while we want a fresh
+# instance if we restart the scheduler
+__instance = None
+
+
+def get_bsscheduler():
+    """
+    Returns the global instance of the BSScheduler
+    :return:
+    """
+    return __instance
+
+
+def create_bsscheduler():
+    """
+    Creates a new global instance of the BSSCheduler
+    :return:
+    """
+    global __instance
+    __instance = BSScheduler()
+    return get_bsscheduler()
+
+
+
+
+
 class BenchsuiteSchedulerConfig(object):
 
     def __init__(self, config_dict):
