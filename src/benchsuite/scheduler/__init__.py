@@ -16,7 +16,7 @@
 #
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
-from benchsuite.scheduler.bsscheduler import BSScheduler
+from . bsscheduler import BSScheduler
 
 VERSION = (1, 0, 0, '0')
 # we want to have a global instance of BSScheduler so that jobs can access it

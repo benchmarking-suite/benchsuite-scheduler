@@ -61,6 +61,6 @@ setup(
         'console_scripts': ['benchsuite-scheduler=benchsuite.scheduler.cli:main'],
     },
 
-    install_requires=['apscheduler']
+    install_requires=['apscheduler', 'pymongo']
 
 )
