@@ -24,7 +24,6 @@ from apscheduler.job import Job
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from benchsuite.scheduler.jobs.docker import docker_job
 from benchsuite.scheduler.schedules import BenchmarkingScheduleConfig, \
     BenchmarkingSchedulesDB
 
@@ -33,6 +32,23 @@ logger = logging.getLogger(__name__)
 
 JOB_ID_PREFIX = 'ap-'
 
+def __build_args_list(schedule):
+    args = [schedule.username,
+            schedule.provider_config_secret,
+            schedule.tests]
+
+    kwargs = {}
+
+    if schedule.tags:
+        kwargs['tags'] = schedule.tags
+
+    if schedule.env:
+        kwargs['env'] = schedule.env
+
+    if schedule.additional_opts:
+        kwargs['additional_opts'] = schedule.additional_opts
+
+    return args, kwargs
 
 def schedule_new_job(
         schedule: BenchmarkingScheduleConfig,
@@ -48,10 +64,17 @@ def schedule_new_job(
 
     id = JOB_ID_PREFIX + schedule.id
     trigger = IntervalTrigger(**schedule.interval)
-    args = ['fake','param2']
+
+    args, kwargs = __build_args_list(schedule)
+
+    # import here to avoid import loops
+    from benchsuite.scheduler.jobs.docker import docker_job
 
     j = scheduler.add_job(docker_job, trigger=trigger, id=id, args=args,
-                          jobstore='benchmarking_jobs')
+                          kwargs=kwargs,
+                          jobstore='benchmarking_jobs',
+                          max_instances=1,
+                          coalesce=True)
 
     logger.info('[ADD] Job %s with id %s added '
                 'for schedule %s', str(j), j.id, schedule.id)
@@ -75,9 +98,13 @@ def update_job(job: Job, schedule: BenchmarkingSchedulesDB):
         new_trigger = IntervalTrigger(**schedule.interval)
         job.reschedule(new_trigger)
 
+
     # update the parameters if changed
-    #TODO
-    pass
+    new_args, new_kwargs = __build_args_list(schedule)
+    if job.args != new_args or job.kwargs != new_kwargs:
+        logger.debug('[UPDATE] Job %s updated because the args '
+                     'are changed', job.id)
+        job.modify(args=new_args, kwargs=new_kwargs)
 
 
 def sync_jobs(

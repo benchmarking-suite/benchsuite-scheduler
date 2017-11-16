@@ -33,32 +33,45 @@ _DEFAULT_INTERVAL = {
 class BenchmarkingScheduleConfig(object):
 
     interval = None
-    cloud_config = None
-    storage_config = None
+    username = None
+    tags = None
+    tests = None
+    env = None
+    provider_config_secret = None
+    additional_opts = None
 
     def __init__(self, raw_obj):
         self._raw_obj = raw_obj
 
         self.id = raw_obj['id']
 
-        if 'interval' in raw_obj:
-            raw_interval = raw_obj['interval']
-            try:
-                self.interval = {
-                    k:int(raw_interval[k]) if k in raw_interval else v
-                    for k, v in _DEFAULT_INTERVAL.items()}
-            except ValueError:
-                logger.error('Error parsing schedule interval. All interval '
-                             'values must be integer')
-                raise
+        raw_interval = raw_obj['interval']
+        try:
+            self.interval = {
+                k:int(raw_interval[k]) if k in raw_interval else v
+                for k, v in _DEFAULT_INTERVAL.items()}
+        except ValueError:
+            logger.error('Error parsing schedule interval. All interval '
+                         'values must be integer')
+            raise
 
-        if 'cloud_config' in raw_obj:
-            self.cloud_config = raw_obj['cloud_config']
+        self.provider_config_secret = raw_obj['provider_config_secret']
+        self.username = raw_obj['username']
 
-        if 'storage_config' in raw_obj:
-            self.storage_config = raw_obj['storage_config']
+        self.tests = raw_obj['tests']
 
+        # optional
+        if 'tags' in raw_obj:
+            self.tags = raw_obj['tags']
 
+        if 'env' in raw_obj:
+            self.env = raw_obj['env']
+
+        if 'additional_opts' in raw_obj:
+            self.additional_opts = raw_obj['additional_opts']
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
 class BenchmarkingSchedulesDB(object):
 

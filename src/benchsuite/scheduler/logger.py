@@ -75,14 +75,19 @@ class JobExecutionLogger(object):
             'status': status,
             'time': evt.scheduled_run_time,
             'ap_job_id': evt.job_id,
-            'schedule_id': evt.job_id[len(JOB_ID_PREFIX):]
         }
+
+        if evt.job_id.startswith(JOB_ID_PREFIX):
+            obj['schedule_id'] = evt.job_id[len(JOB_ID_PREFIX):]
 
         if status == 'OK':
             obj['retval'] = evt.retval
 
         if status == 'ERROR':
             obj['exception'] = str(evt.exception)
+            if hasattr(evt.exception, 'log'):
+                obj['error_log'] = evt.exception.log
+
             obj['traceback'] = evt.traceback
 
         self._client[self._db_name][self._db_collection].insert_one(obj)

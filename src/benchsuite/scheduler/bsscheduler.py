@@ -72,6 +72,13 @@ class BenchsuiteSchedulerConfig(object):
         self.jobs_execution_logger_db_host = config_dict['connection_string']
         self.jobs_execution_logger_db_name = config_dict['log_db_name']
         self.jobs_execution_logger_collection = config_dict['log_collection']
+        self.results_storage_secret = 'storage'
+        self.docker_host = 'localhost:2375'
+        self.docker_benchsuite_image = 'benchsuite/benchsuite-multiexec:dev'
+        self.docker_containers_env = {
+            'proxy': 'test_val'
+        }
+        self.docker_containers_additional_opts = ['--tag', 'gloabl_tag']
 
 
 
@@ -139,8 +146,7 @@ class BSScheduler(object):
         self.jobslogger = JobExecutionLogger(
             self.config.jobs_execution_logger_db_host,
             self.config.jobs_execution_logger_db_name,
-            self.config.jobs_execution_logger_collection,
-            log_success_execution=True
+            self.config.jobs_execution_logger_collection
         )
         self.scheduler.add_listener(
             self.jobslogger.apscheduler_listener, EVENT_ALL)
