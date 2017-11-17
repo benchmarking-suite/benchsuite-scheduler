@@ -23,7 +23,11 @@ from apscheduler.events import EVENT_SCHEDULER_SHUTDOWN, EVENT_ALL
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.jobstores.mongodb import MongoDBJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
-from benchsuite.scheduler.jobs.meta import synch_scheduled_jobs
+
+from benchsuite.scheduler.config import load_configuration
+from benchsuite.scheduler.dockermanager import DockerManager
+from benchsuite.scheduler.jobs.meta import print_scheduled_jobs_info, \
+    sync_scheduled_jobs
 from benchsuite.scheduler.logger import JobExecutionLogger
 from benchsuite.scheduler.schedules import BenchmarkingSchedulesDB
 
@@ -59,40 +63,6 @@ def create_bsscheduler():
 
 
 
-class BenchsuiteSchedulerConfig(object):
-
-    def __init__(self, config_dict):
-
-        self.jobs_db_host = config_dict['connection_string']
-        self.jobs_db_name = config_dict['db_name']
-        self.jobs_collection = config_dict['collection']
-        self.schedules_db_host = config_dict['connection_string']
-        self.schedules_db_name = config_dict['qoe_db_name']
-        self.schedules_collection = config_dict['qoe_schedules_collection']
-        self.jobs_execution_logger_db_host = config_dict['connection_string']
-        self.jobs_execution_logger_db_name = config_dict['log_db_name']
-        self.jobs_execution_logger_collection = config_dict['log_collection']
-        self.results_storage_secret = 'storage'
-        self.docker_host = 'localhost:2375'
-        self.docker_benchsuite_image = 'benchsuite/benchsuite-multiexec:dev'
-        self.docker_containers_env = {
-            'proxy': 'test_val'
-        }
-        self.docker_containers_additional_opts = ['--tag', 'gloabl_tag']
-
-
-
-
-def load_configuration():
-    return BenchsuiteSchedulerConfig({
-        'connection_string': 'mongodb://localhost:27017/',
-        'db_name': 'benchmarking',
-        'collection': 'ap_jobs',
-        'qoe_db_name': 'benchmarking',
-        'qoe_schedules_collection': 'scheduling',
-        'log_db_name': 'benchmarking',
-        'log_collection': 'ap_executions'
-    })
 
 class BSScheduler(object):
     """
@@ -103,6 +73,7 @@ class BSScheduler(object):
     scheduler = None
     schedulesdb = None
     jobslogger = None
+    dockermanager = None
 
     __initialized = False
 
@@ -121,6 +92,8 @@ class BSScheduler(object):
             self.config.schedules_db_host,
             self.config.schedules_db_name,
             self.config.schedules_collection)
+
+        self.dockermanager = DockerManager(self.config)
 
         # initialize the APScheduler
         jobstore = MongoDBJobStore(
@@ -146,20 +119,33 @@ class BSScheduler(object):
         self.jobslogger = JobExecutionLogger(
             self.config.jobs_execution_logger_db_host,
             self.config.jobs_execution_logger_db_name,
-            self.config.jobs_execution_logger_collection
+            self.config.jobs_execution_logger_collection,
+            log_missed_execution=False
         )
         self.scheduler.add_listener(
             self.jobslogger.apscheduler_listener, EVENT_ALL)
 
+        # run the sync at the beginning
+        sync_scheduled_jobs(self)
+
         self.__initialized = True
 
     def __add_meta_jobs(self):
-        logger.debug('Adding meta job to sync schedules')
-        self.scheduler.add_job(synch_scheduled_jobs, 'interval', seconds=5,
+        j = self.scheduler.add_job(sync_scheduled_jobs, 'interval',
+                               seconds=self.config.schedules_sync_interval,
                                id='_sync_schedules', replace_existing=True,
                                max_instances=1,
                                args=[self],
                                jobstore='meta_jobs')
+        logger.debug('Added meta job to sync schedules. Next run: %s', str(j.next_run_time))
+
+        j = self.scheduler.add_job(print_scheduled_jobs_info,
+                               'interval', seconds=self.config.print_jobs_info_interval,
+                               id='_print_jobs_info', replace_existing=True,
+                               max_instances=1,
+                               args=[self],
+                               jobstore='meta_jobs')
+        logger.debug('Added meta job to print jobs info. Next run: %s', str(j.next_run_time))
 
     def start(self):
         """

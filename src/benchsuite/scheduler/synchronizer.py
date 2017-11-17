@@ -65,13 +65,11 @@ def schedule_new_job(
     id = JOB_ID_PREFIX + schedule.id
     trigger = IntervalTrigger(**schedule.interval)
 
-    args, kwargs = __build_args_list(schedule)
-
     # import here to avoid import loops
-    from benchsuite.scheduler.jobs.docker import docker_job
+    from benchsuite.scheduler.jobs.benchmarking import benchmarking_job
 
-    j = scheduler.add_job(docker_job, trigger=trigger, id=id, args=args,
-                          kwargs=kwargs,
+    j = scheduler.add_job(benchmarking_job, trigger=trigger, id=id,
+                          args=[schedule],
                           jobstore='benchmarking_jobs',
                           max_instances=1,
                           coalesce=True)
@@ -100,11 +98,10 @@ def update_job(job: Job, schedule: BenchmarkingSchedulesDB):
 
 
     # update the parameters if changed
-    new_args, new_kwargs = __build_args_list(schedule)
-    if job.args != new_args or job.kwargs != new_kwargs:
+    if job.args[0] != schedule:
         logger.debug('[UPDATE] Job %s updated because the args '
                      'are changed', job.id)
-        job.modify(args=new_args, kwargs=new_kwargs)
+        job.modify(args=[schedule])
 
 
 def sync_jobs(

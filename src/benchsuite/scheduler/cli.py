@@ -36,6 +36,7 @@ def main(args=None):
     signal.signal(signal.SIGINT, on_exit)
 
     logging.basicConfig(
+        format='%(asctime)s - %(levelname)-7s %(message)s',
         level=logging.DEBUG,
         stream=sys.stdout)
 
@@ -52,7 +53,6 @@ def main(args=None):
     #bsscheduler.scheduler._thread.join()
 
     bsscheduler.wait_unitl_shutdown()
-
 
 
 if __name__ == '__main__':
