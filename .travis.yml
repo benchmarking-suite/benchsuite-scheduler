@@ -8,4 +8,4 @@ script:
 after_success:
 
   # trigger the build of the rest service docker image
-  - "curl --data '{\"docker_tag\": \"dev\"}' -X POSThttps://cloud.docker.com/api/build/v1/source/72c20f62-a0bd-4a5f-b376-26c5417f5456/trigger/fbab18f5-7acc-468e-90f1-092e86493a7c/call/"
+  - "curl --data '{\"docker_tag\": \"dev\"}' -X POST https://cloud.docker.com/api/build/v1/source/72c20f62-a0bd-4a5f-b376-26c5417f5456/trigger/fbab18f5-7acc-468e-90f1-092e86493a7c/call/"
