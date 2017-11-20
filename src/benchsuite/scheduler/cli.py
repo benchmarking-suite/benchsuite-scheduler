@@ -82,7 +82,14 @@ def main(args=None):
 
 
     args = parser.parse_args(args = args)
+
+    if args.config and not os.path.isfile(args.config):
+        logger.info('Configuration file {0} does not exist. Do not considering it'.format(args.config))
+        args.config = None
+
     config = get_config_parameters(args.config)
+
+
 
     bsscheduler = create_bsscheduler(BenchsuiteSchedulerConfig(config))
     bsscheduler.initialize()
