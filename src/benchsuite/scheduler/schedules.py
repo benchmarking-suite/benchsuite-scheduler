@@ -80,6 +80,8 @@ class BenchmarkingSchedulesDB(object):
         self._client = MongoClient(db_host)
         self._db_name = db_name
         self._collection = collection
+        logger.info('Schedules DB at {0}, db_name={1}, collection={2}'.format(
+            db_host, db_name, collection))
 
     def get_benchmarking_schedules(self):
         out = []

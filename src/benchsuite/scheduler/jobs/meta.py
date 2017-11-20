@@ -18,6 +18,7 @@
 # CloudPerfect EU project (https://cloudperfect.eu/)
 import logging
 
+import datetime
 import docker
 import pytz
 from tzlocal import get_localzone
@@ -52,20 +53,20 @@ def print_scheduled_jobs_info(bsscheduler):
     out.append('*                    SCHEDULED JOBS                    *')
     out.append('*                                                      *')
     for j in jobs:
-        out.append(u'* - {0} \u27A1 {1}'.format(j.args[0].id, str(j.next_run_time.strftime('%Y-%m-%d %H:%M:%S'))))
+        delta = j.next_run_time - datetime.datetime.now(tz=j.next_run_time.tzinfo)
+        out.append(u'* - {0} \u27A1 {1} (in {2})'.format(j.args[0].id, str(j.next_run_time.strftime('%Y-%m-%d %H:%M:%S %Z')), delta))
     out.append('*                                                      *')
     out.append('*                     RUNNING JOBS                     *')
 
     all_instances = bsscheduler.dockermanager.list()
 
     for i in [i for i in all_instances if i.status == 'running']:
-        localdatetime = pytz.utc.localize(i.created).astimezone(get_localzone())
-        out.append('* - {0} {1}'.format(i.schedule_id, localdatetime.strftime('%Y-%m-%d %H:%M:%S')))
+        delta = datetime.datetime.now(tz=i.created.tzinfo) - i.created
+        out.append('* - {0} {1} (since {2})'.format(i.schedule_id, i.created.strftime('%Y-%m-%d %H:%M:%S %Z'), delta))
     out.append('*                                                      *')
     out.append('*                  NOT RUNNING INSTANCE                *')
     for i in [i for i in all_instances if i.status != 'running']:
-        localdatetime = pytz.utc.localize(i.created).astimezone(get_localzone())
-        out.append('* - {0} {1}'.format(i.schedule_id, localdatetime.strftime('%Y-%m-%d %H:%M:%S')))
+        out.append('* - {0} {1}'.format(i.schedule_id, i.created.strftime('%Y-%m-%d %H:%M:%S %Z')))
     out.append('*                                                      *')
     out.append('********************************************************')
 

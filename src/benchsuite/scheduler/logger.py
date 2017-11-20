@@ -19,9 +19,10 @@
 import logging
 
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, \
-    EVENT_JOB_MISSED
+    EVENT_JOB_MISSED, EVENT_JOB_ADDED, EVENT_JOB_REMOVED, EVENT_JOB_MODIFIED
 from pymongo import MongoClient
 
+from benchsuite.scheduler.jobs.meta import print_scheduled_jobs_info
 from benchsuite.scheduler.synchronizer import JOB_ID_PREFIX
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,14 @@ class JobExecutionLogger(object):
             logger.info('[LOG] Job MISSED')
             if self._log_missed_execution:
                 self.__add_entry('MISSSED', evt)
+
+
+        elif evt.code == EVENT_JOB_ADDED or \
+            evt.code == EVENT_JOB_REMOVED or \
+            evt.code == EVENT_JOB_MODIFIED:
+                logger.info('Job list modified. Printing list')
+                from benchsuite.scheduler.bsscheduler import get_bsscheduler
+                print_scheduled_jobs_info(get_bsscheduler())
 
         else:
             logger.debug('Received event code %s that is not managed', evt.code)

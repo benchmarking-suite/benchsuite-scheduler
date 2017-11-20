@@ -16,12 +16,17 @@
 #
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
+import argparse
 import logging
 import signal
 import time
 import sys
 
+import os
+
+from benchsuite.scheduler import config
 from benchsuite.scheduler.bsscheduler import get_bsscheduler, create_bsscheduler
+from benchsuite.scheduler.config import BenchsuiteSchedulerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +34,33 @@ def on_exit(sig, func=None):
     get_bsscheduler().shutdown()
     print('Bye bye...')
     sys.exit(1)
+
+
+
+def get_config_parameters(config_file, use_env=True):
+
+    cfg = {}
+    if config_file:
+
+        # config file format:
+        # PARAM = VALUE
+
+        with open(config_file) as f:
+            lines = f.readlines()
+
+        for l in lines:
+            tokens = l.split('=')
+            cfg[tokens[0].strip()] = tokens[1].strip()
+
+    if use_env:
+
+        for k in config.DEFAULTS.keys():
+            if k in os.environ:
+                cfg[k] = os.environ[k]
+
+    return cfg
+
+
 
 
 def main(args=None):
@@ -44,7 +76,15 @@ def main(args=None):
 
     logger.info('Logging configured')
 
-    bsscheduler = create_bsscheduler()
+
+    parser = argparse.ArgumentParser(prog='benchsuite-scheduler')
+    parser.add_argument('--config', '-c', type=str, help='the location of the config file')
+
+
+    args = parser.parse_args(args = args)
+    config = get_config_parameters(args.config)
+
+    bsscheduler = create_bsscheduler(BenchsuiteSchedulerConfig(config))
     bsscheduler.initialize()
     bsscheduler.start()
 

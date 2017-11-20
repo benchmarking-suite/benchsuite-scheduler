@@ -22,6 +22,7 @@ import time
 
 import datetime
 import docker
+import pytz
 from docker.types import SecretReference, RestartPolicy
 
 from benchsuite.scheduler.config import BenchsuiteSchedulerConfig
@@ -37,7 +38,14 @@ class BenchsuiteInstance(object):
         self.docker_service_id = docker_service.id
         self.docker_container_id = docker_service.tasks()[0]['Status']['ContainerStatus']['ContainerID']
         self.status = docker_service.tasks()[0]['Status']['State']
-        self.created = datetime.datetime.strptime(docker_service.tasks()[0]['CreatedAt'][:-11], '%Y-%m-%dT%H:%M:%S')
+
+        try:
+            self.created = datetime.datetime.strptime(docker_service.tasks()[0]['CreatedAt'][:19], '%Y-%m-%dT%H:%M:%S')
+            self.created = self.created.replace(tzinfo=pytz.utc)  # docker api returns dates in UTC
+        except:
+            logger.error('error parsing data: ', docker_service.tasks()[0]['CreatedAt'][:19])
+            pass
+
         self.schedule_id = docker_service.attrs['Spec']['Labels']['benchsuite.schedule_id']
         self.username = docker_service.attrs['Spec']['Labels']['benchsuite.username']
 
@@ -52,10 +60,10 @@ class DockerManager(object):
     def __init__(self, config: BenchsuiteSchedulerConfig):
 
         self.__client = docker.DockerClient(config.docker_host)
-        self._storage_secret_ref = self.__get_secret_ref(config.docker_results_storage_secret)
-        self._global_tags = config.docker_containers_tags or []
-        self._global_env = config.docker_containers_env or {}
-        self._global_opts = config.docker_containers_additional_opts or []
+        self._storage_secret_ref = self.__get_secret_ref(config.docker_storage_secret)
+        self._global_tags = config.docker_global_tags or []
+        self._global_env = config.docker_global_env or {}
+        self._global_opts = config.docker_additional_opts or []
         self._benchsuite_multiexec_image = config.docker_benchsuite_image
 
     def create_benchsuite_multiexec_instance(self, schedule: BenchmarkingScheduleConfig):

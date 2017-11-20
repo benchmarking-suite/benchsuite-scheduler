@@ -24,7 +24,6 @@ from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.jobstores.mongodb import MongoDBJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from benchsuite.scheduler.config import load_configuration
 from benchsuite.scheduler.dockermanager import DockerManager
 from benchsuite.scheduler.jobs.meta import print_scheduled_jobs_info, \
     sync_scheduled_jobs
@@ -50,13 +49,13 @@ def get_bsscheduler():
     return __instance
 
 
-def create_bsscheduler():
+def create_bsscheduler(config):
     """
     Creates a new global instance of the BSSCheduler
     :return:
     """
     global __instance
-    __instance = BSScheduler()
+    __instance = BSScheduler(config)
     return get_bsscheduler()
 
 
@@ -77,8 +76,8 @@ class BSScheduler(object):
 
     __initialized = False
 
-    def __init__(self):
-        self.config = load_configuration()
+    def __init__(self, config):
+        self.config = config
         self.__blocked_flag = None
 
     def initialize(self):
@@ -91,14 +90,14 @@ class BSScheduler(object):
         self.schedules_db = BenchmarkingSchedulesDB(
             self.config.schedules_db_host,
             self.config.schedules_db_name,
-            self.config.schedules_collection)
+            self.config.schedules_db_collection)
 
         self.dockermanager = DockerManager(self.config)
 
         # initialize the APScheduler
         jobstore = MongoDBJobStore(
             database=self.config.jobs_db_name,
-            collection=self.config.jobs_collection,
+            collection=self.config.jobs_db_collection,
             host=self.config.jobs_db_host
         )
 
@@ -117,9 +116,9 @@ class BSScheduler(object):
 
         # initialize the job logger facility
         self.jobslogger = JobExecutionLogger(
-            self.config.jobs_execution_logger_db_host,
-            self.config.jobs_execution_logger_db_name,
-            self.config.jobs_execution_logger_collection,
+            self.config.exec_db_host,
+            self.config.exec_db_name,
+            self.config.exec_db_collection,
             log_missed_execution=False
         )
         self.scheduler.add_listener(
@@ -129,6 +128,11 @@ class BSScheduler(object):
         sync_scheduled_jobs(self)
 
         self.__initialized = True
+
+        logger.info('Printing jobs info. It will printed every minute and '
+                    'everytime the job list is modified')
+        print_scheduled_jobs_info(self)
+
 
     def __add_meta_jobs(self):
         j = self.scheduler.add_job(sync_scheduled_jobs, 'interval',

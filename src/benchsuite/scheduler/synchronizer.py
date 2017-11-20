@@ -17,7 +17,7 @@
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import List
 
 from apscheduler.job import Job
@@ -72,7 +72,9 @@ def schedule_new_job(
                           args=[schedule],
                           jobstore='benchmarking_jobs',
                           max_instances=1,
-                          coalesce=True)
+                          coalesce=True,
+                          # run immediately
+                          next_run_time=datetime.now())
 
     logger.info('[ADD] Job %s with id %s added '
                 'for schedule %s', str(j), j.id, schedule.id)
