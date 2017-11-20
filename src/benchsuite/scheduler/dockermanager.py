@@ -111,7 +111,7 @@ class DockerManager(object):
 
 
     def __wait_instance_ready(self, service):
-        retry = 5
+        retry = 10
         cont_id = None
         while retry and not cont_id:
             service.reload()
@@ -122,11 +122,11 @@ class DockerManager(object):
                     break
 
             retry -= 1
-            logger.debug('Container ID not ready yet. Retrying in 2 seconds')
-            time.sleep(2)
+            logger.debug('Container ID not ready yet. Retrying in 10 seconds')
+            time.sleep(10)
 
         if not cont_id:
-            raise Exception('Failed to retrieve the container id after 10 seconds')
+            raise Exception('Failed to retrieve the container id after 100 seconds')
 
 
     def wait(self, instance):
