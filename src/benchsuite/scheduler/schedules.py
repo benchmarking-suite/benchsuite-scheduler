@@ -34,11 +34,11 @@ class BenchmarkingScheduleConfig(object):
 
     interval = None
     username = None
-    tags = None
+    tags = []
     tests = None
-    env = None
+    env = {}
     provider_config_secret = None
-    additional_opts = None
+    additional_opts = []
 
     def __init__(self, raw_obj):
         self._raw_obj = raw_obj
