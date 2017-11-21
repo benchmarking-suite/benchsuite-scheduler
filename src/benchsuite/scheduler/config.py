@@ -41,9 +41,9 @@ DEFAULTS = {
     'DOCKER_HOST': 'localhost:2375',
     'DOCKER_STORAGE_SECRET': None,
     'DOCKER_BENCHSUITE_IMAGE': 'benchsuite/benchsuite-multiexec',
-    'DOCKER_GLOBAL_ENV': {},
-    'DOCKER_GLOBAL_TAGS': [],
-    'DOCKER_ADDITIONAL_OPTS': []
+    'DOCKER_GLOBAL_ENV': '',
+    'DOCKER_GLOBAL_TAGS': '',
+    'DOCKER_ADDITIONAL_OPTS': ''
 }
 
 class BenchsuiteSchedulerConfig(object):
@@ -87,6 +87,14 @@ class BenchsuiteSchedulerConfig(object):
         self.docker_storage_secret = cfg['DOCKER_STORAGE_SECRET']
         self.docker_benchsuite_image = cfg['DOCKER_BENCHSUITE_IMAGE']
 
-        self.docker_global_env = cfg['DOCKER_GLOBAL_ENV']
-        self.docker_global_tags = cfg['DOCKER_GLOBAL_TAGS']
+        self.docker_global_env = {}
+        if cfg['DOCKER_GLOBAL_ENV']:
+            for i in cfg['DOCKER_GLOBAL_ENV'].split(','):
+                t = i.split('=')
+                self.docker_global_env[t[0]] = t[1]
+
+        self.docker_global_tags = []
+        if cfg['DOCKER_GLOBAL_TAGS']:
+            self.docker_global_tags = [i for i in cfg['DOCKER_GLOBAL_TAGS'].split(',')]
+
         self.docker_additional_opts = cfg['DOCKER_ADDITIONAL_OPTS']

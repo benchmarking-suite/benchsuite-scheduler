@@ -64,7 +64,7 @@ class DockerManager(object):
         self._storage_secret_ref = self.__get_secret_ref(config.docker_storage_secret)
         self._global_tags = config.docker_global_tags or []
         self._global_env = config.docker_global_env or {}
-        self._global_opts = config.docker_additional_opts or []
+        self._global_opts = config.docker_additional_opts.split() or []
         self._benchsuite_multiexec_image = config.docker_benchsuite_image
 
     def create_benchsuite_multiexec_instance(self, schedule: BenchmarkingScheduleConfig):
