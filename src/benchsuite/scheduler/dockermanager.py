@@ -36,7 +36,8 @@ class BenchsuiteInstance(object):
     def __init__(self, docker_service):
         self.id = docker_service.name
         self.docker_service_id = docker_service.id
-        self.docker_container_id = docker_service.tasks()[0]['Status']['ContainerStatus']['ContainerID']
+        if 'ContainerID' in docker_service.tasks()[0]['Status']['ContainerStatus']:
+            self.docker_container_id = docker_service.tasks()[0]['Status']['ContainerStatus']['ContainerID']
         self.status = docker_service.tasks()[0]['Status']['State']
 
         try:
