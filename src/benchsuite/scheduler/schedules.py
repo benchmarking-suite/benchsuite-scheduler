@@ -86,6 +86,10 @@ class BenchmarkingSchedulesDB(object):
     def get_benchmarking_schedules(self):
         out = []
         for r in self._client[self._db_name][self._collection].find():
+
+            if 'active' not in r or not r['active']:
+                continue
+
             try:
                 out.append(BenchmarkingScheduleConfig(r))
             except:
