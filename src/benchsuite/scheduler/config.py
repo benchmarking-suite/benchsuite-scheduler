@@ -89,9 +89,15 @@ class BenchsuiteSchedulerConfig(object):
 
         self.docker_global_env = {}
         if cfg['DOCKER_GLOBAL_ENV']:
-            for i in cfg['DOCKER_GLOBAL_ENV'].split(','):
+
+            # the '\,' sequence must be interpreted as a real comma and not as
+            # the separator between variables. So first we temporarly replace it
+            # with a different sequence (i.e. '\@') and then, after the
+            # splitting, change it back to ','
+            temp = cfg['DOCKER_GLOBAL_ENV'].replace('\,', '\@')
+            for i in temp.split(','):
                 t = i.split('=')
-                self.docker_global_env[t[0]] = t[1]
+                self.docker_global_env[t[0]] = t[1].replace('\@',',')
 
         self.docker_global_tags = []
         if cfg['DOCKER_GLOBAL_TAGS']:
