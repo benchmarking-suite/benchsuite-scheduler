@@ -60,7 +60,7 @@ class DockerManager(object):
 
     def __init__(self, config: BenchsuiteSchedulerConfig):
 
-        self.__client = docker.DockerClient(config.docker_host)
+        self.__client = docker.DockerClient(base_url=config.docker_host)
         self._storage_secret_ref = self.__get_secret_ref(config.docker_storage_secret)
         self._global_tags = config.docker_global_tags or []
         self._global_env = config.docker_global_env or {}
