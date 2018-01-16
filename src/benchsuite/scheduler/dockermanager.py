@@ -65,7 +65,7 @@ class DockerManager(object):
         self._global_tags = config.benchsuite_global_tags or []
         self._global_env = config.docker_global_env or {}
         self._additional_opts = config.benchsuite_additional_opts or []
-        self._docker_additional_opts = config.docker_additional_opts or []
+        self._docker_additional_opts = config.docker_additional_opts or {}
         self._benchsuite_multiexec_image = config.docker_benchsuite_image
 
     def create_benchsuite_multiexec_instance(self, schedule: BenchmarkingScheduleConfig):
