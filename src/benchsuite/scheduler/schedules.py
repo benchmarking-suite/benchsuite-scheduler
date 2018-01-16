@@ -38,7 +38,8 @@ class BenchmarkingScheduleConfig(object):
     tests = None
     env = {}
     provider_config_secret = None
-    additional_opts = []
+    benchsuite_additional_opts = []
+    docker_additional_opts = {}
 
     def __init__(self, raw_obj):
         self._raw_obj = raw_obj
@@ -67,8 +68,11 @@ class BenchmarkingScheduleConfig(object):
         if 'env' in raw_obj:
             self.env = raw_obj['env']
 
-        if 'additional_opts' in raw_obj:
-            self.additional_opts = raw_obj['additional_opts']
+        if 'benchsuite_additional_opts' in raw_obj:
+            self.benchsuite_additional_opts = raw_obj['benchsuite_additional_opts']
+
+        if 'docker_additional_opts' in raw_obj:
+            self.docker_additional_opts = raw_obj['docker_additional_opts']
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__

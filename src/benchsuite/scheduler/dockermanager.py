@@ -62,9 +62,10 @@ class DockerManager(object):
 
         self.__client = docker.DockerClient(base_url=config.docker_host)
         self._storage_secret_ref = self.__get_secret_ref(config.docker_storage_secret)
-        self._global_tags = config.docker_global_tags or []
+        self._global_tags = config.benchsuite_global_tags or []
         self._global_env = config.docker_global_env or {}
-        self._global_opts = config.docker_additional_opts.split() or []
+        self._additional_opts = config.benchsuite_additional_opts or []
+        self._docker_additional_opts = config.docker_additional_opts or []
         self._benchsuite_multiexec_image = config.docker_benchsuite_image
 
     def create_benchsuite_multiexec_instance(self, schedule: BenchmarkingScheduleConfig):
@@ -78,12 +79,14 @@ class DockerManager(object):
             '--user', schedule.username
         ]
 
+        for t in self._global_tags:
+            args.extend(['--tag', t])
+
         for t in schedule.tags:
             args.extend(['--tag', t])
 
-        args.extend(self._global_opts)
-        args.extend(self._global_opts)
-        args.extend(schedule.additional_opts or [])
+        args.extend(self._additional_opts)
+        args.extend(schedule.benchsuite_additional_opts or [])
         args.extend(schedule.tests)
 
         final_env = dict(self._global_env)
@@ -96,6 +99,11 @@ class DockerManager(object):
             'benchsuite.schedule_id': schedule.id,
             'benchsuite.username': schedule.username}
 
+
+        docker_additional_opts = self._docker_additional_opts
+        docker_additional_opts.update(schedule.docker_additional_opts)
+        logger.debug('Appending additional docker opts:', docker_additional_opts)
+
         service = self.__client.services.create(
             self._benchsuite_multiexec_image,
             secrets=[self._storage_secret_ref, provider_secret_ref],
@@ -103,7 +111,8 @@ class DockerManager(object):
             env=env_list,
             restart_policy = restartCond,
             labels=labels,
-            name=name
+            name=name,
+            **docker_additional_opts
         )
 
         self.__wait_instance_ready(service)

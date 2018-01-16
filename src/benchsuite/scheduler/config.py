@@ -16,8 +16,7 @@
 #
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
-
-
+import json
 
 DEFAULTS = {
     'SCHEDULES_SYNC_INTERVAL': 60,
@@ -42,8 +41,9 @@ DEFAULTS = {
     'DOCKER_STORAGE_SECRET': None,
     'DOCKER_BENCHSUITE_IMAGE': 'benchsuite/benchsuite-multiexec',
     'DOCKER_GLOBAL_ENV': '',
-    'DOCKER_GLOBAL_TAGS': '',
-    'DOCKER_ADDITIONAL_OPTS': ''
+    'DOCKER_ADDITIONAL_OPTS': '',
+    'BENCHSUITE_GLOBAL_TAGS': '',
+    'BENCHSUITE_ADDITIONAL_OPTS': ''
 }
 
 class BenchsuiteSchedulerConfig(object):
@@ -99,8 +99,15 @@ class BenchsuiteSchedulerConfig(object):
                 t = i.split('=')
                 self.docker_global_env[t[0]] = t[1].replace('\@',',')
 
-        self.docker_global_tags = []
-        if cfg['DOCKER_GLOBAL_TAGS']:
-            self.docker_global_tags = [i for i in cfg['DOCKER_GLOBAL_TAGS'].split(',')]
+        self.benchsuite_global_tags = []
+        if cfg['BENCHSUITE_GLOBAL_TAGS']:
+            self.benchsuite_global_tags = [i for i in cfg['BENCHSUITE_GLOBAL_TAGS'].split(',')]
 
-        self.docker_additional_opts = cfg['DOCKER_ADDITIONAL_OPTS']
+        self.benchsuite_additional_opts = cfg['BENCHSUITE_ADDITIONAL_OPTS'].split() or []
+
+        self.docker_additional_opts = {}
+        if cfg['DOCKER_ADDITIONAL_OPTS']:
+            for opt in cfg['DOCKER_ADDITIONAL_OPTS'].split(','):
+                kstr, vstr = opt.split("=", maxsplit=1)
+                val = json.loads(vstr)
+                self.docker_additional_opts[kstr] = val

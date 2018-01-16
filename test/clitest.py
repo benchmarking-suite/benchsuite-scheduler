@@ -25,8 +25,10 @@ from benchsuite.scheduler.cli import main
 if __name__ == '__main__':
 
     os.environ['DB_HOST'] = 'mongodb://localhost:27017'
-    os.environ['DOCKER_HOST'] = 'tcp://localhost:4550'
-    #os.environ['DOCKER_HOST'] = 'unix://var/run/docker.sock'
+    #os.environ['DOCKER_HOST'] = 'tcp://localhost:4550'
+    os.environ['DOCKER_HOST'] = 'unix://var/run/docker.sock'
     os.environ['DOCKER_STORAGE_SECRET'] = 'storage'
+    os.environ['DOCKER_ADDITIONAL_OPTS'] = 'host={"cloudpctn":"10.0.1.1"}'
+    os.environ['BENCHSUITE_GLOBAL_TAGS'] = 'pippo'
     main([])
 
