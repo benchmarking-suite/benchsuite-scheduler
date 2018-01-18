@@ -31,6 +31,10 @@ from benchsuite.scheduler.schedules import BenchmarkingScheduleConfig
 logger = logging.getLogger(__name__)
 
 
+class DockerManagerException(Exception):
+    pass
+
+
 class BenchsuiteInstance(object):
 
     def __init__(self, docker_service):
@@ -159,9 +163,10 @@ class DockerManager(object):
     def stop_all(self):
         raise NotImplementedError()
 
-    def __get_secret_ref(self,name_or_id):
+    def __get_secret_ref(self, name_or_id):
         for s in self.__client.secrets.list():
             if s.id == name_or_id or s.name == name_or_id:
                 return SecretReference(s.id, s.name)
 
-        return None
+        raise DockerManagerException('The secret with name or id {0} '
+                                     'does not exist'.format(name_or_id))
