@@ -98,6 +98,8 @@ class DockerManager(object):
         env_list = ['{0}={1}'.format(k,v) for k,v in final_env.items()]
 
         name = schedule.id + '_' + schedule.username
+        name = name.replace('.','_')
+
         labels = {
             'benchsuite.source': 'benchsuite-scheduler',
             'benchsuite.schedule_id': schedule.id,
