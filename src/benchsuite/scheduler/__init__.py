@@ -16,5 +16,5 @@
 #
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
-VERSION = (1, 3, 0, '0')
+VERSION = (1, 3, 1, '0')
 
