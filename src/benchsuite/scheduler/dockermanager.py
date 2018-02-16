@@ -79,7 +79,6 @@ class DockerManager(object):
         args = [
             '--storage-config', '/run/secrets/' + self._storage_secret_ref['SecretName'],
             '--provider', '/run/secrets/' + provider_secret_ref['SecretName'],
-            '--failonerror',
             '--user', schedule.username
         ]
 
