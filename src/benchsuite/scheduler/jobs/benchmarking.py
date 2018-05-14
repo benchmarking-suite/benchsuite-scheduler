@@ -47,9 +47,9 @@ def benchmarking_job(schedule: BenchmarkingScheduleConfig):
 
     dockermanager.remove_instance(instance)
 
-    if retval != 0:
+    if retval['StatusCode'] != 0:
         e = DockerJobFailedException(
-            'The execution exit with status {0}'.format(retval))
+            'The execution exit with {0}'.format(retval))
         e.log = log
         raise e
 
