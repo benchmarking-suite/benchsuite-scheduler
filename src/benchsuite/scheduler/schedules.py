@@ -35,6 +35,7 @@ class BenchmarkingScheduleConfig(object):
     interval = None
     username = None
     tags = []
+    properties = {}
     tests = None
     env = {}
     provider_config_secret = None
@@ -64,6 +65,9 @@ class BenchmarkingScheduleConfig(object):
         # optional
         if 'tags' in raw_obj:
             self.tags = raw_obj['tags']
+
+        if 'properties' in raw_obj:
+            self.properties = raw_obj['properties']
 
         if 'env' in raw_obj:
             self.env = raw_obj['env']
