@@ -89,7 +89,7 @@ class DockerManager(object):
             args.extend(['--tag', t])
 
         for k, v in schedule.properties.items():
-            args.extend(['--property "{0}={1}"'.format(k, v)])
+            args.extend(['--property', '{0}={1}'.format(k, v)])
 
         args.extend(self._additional_opts)
         args.extend(schedule.benchsuite_additional_opts or [])
@@ -114,7 +114,8 @@ class DockerManager(object):
         logger.debug('Appending additional docker opts:', docker_additional_opts)
 
 
-        logger.debug('Creating container with args: %s', args)
+        logger.debug('Creating container with image %s and args: %s',
+                     self._benchsuite_multiexec_image, args)
 
         service = self.__client.services.create(
             self._benchsuite_multiexec_image,
