@@ -97,6 +97,17 @@ class JobExecutionLogger(object):
             if hasattr(evt.exception, 'log'):
                 obj['error_log'] = evt.exception.log
 
+            if hasattr(evt.exception, 'container'):
+
+                # the container dict contains a "Labels" dict. However, keys of
+                # the latter container may have "." because they are the name of
+                # the labels (e.g. "com.docker.swarm.node.id"). Since "." in the
+                # key name is not allowed in mongoDB, we remove the "Labels" dict
+                evt.exception.container['Config']['Labels'] = \
+                    'Removed because labels names contain "." characters'
+
+                obj['container'] = evt.exception.container
+
             obj['traceback'] = evt.traceback
 
         self._client[self._db_name][self._db_collection].insert_one(obj)

@@ -113,6 +113,9 @@ class DockerManager(object):
         docker_additional_opts.update(schedule.docker_additional_opts)
         logger.debug('Appending additional docker opts:', docker_additional_opts)
 
+
+        logger.debug('Creating container with args: %s', args)
+
         service = self.__client.services.create(
             self._benchsuite_multiexec_image,
             secrets=[self._storage_secret_ref, provider_secret_ref],
@@ -152,7 +155,7 @@ class DockerManager(object):
         cont = self.__client.containers.get(instance.docker_container_id)
         retval = cont.wait()
         log = cont.logs().decode()
-        return retval, log
+        return retval, log, cont.attrs
 
     def remove_instance(self, instance):
         self.__client.services.get(instance.docker_service_id).remove()

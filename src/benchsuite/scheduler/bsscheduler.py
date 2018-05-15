@@ -129,7 +129,7 @@ class BSScheduler(object):
 
         self.__initialized = True
 
-        logger.info('Printing jobs info. It will printed every minute and '
+        logger.info('Printing jobs info. It will be printed every minute and '
                     'everytime the job list is modified')
         print_scheduled_jobs_info(self)
 

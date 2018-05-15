@@ -43,7 +43,7 @@ def benchmarking_job(schedule: BenchmarkingScheduleConfig):
 
     instance = dockermanager.create_benchsuite_multiexec_instance(schedule)
 
-    retval, log = dockermanager.wait(instance)
+    retval, log, cont_attrs = dockermanager.wait(instance)
 
     dockermanager.remove_instance(instance)
 
@@ -51,6 +51,7 @@ def benchmarking_job(schedule: BenchmarkingScheduleConfig):
         e = DockerJobFailedException(
             'The execution exit with {0}'.format(retval))
         e.log = log
+        e.container = cont_attrs
         raise e
 
     return retval
