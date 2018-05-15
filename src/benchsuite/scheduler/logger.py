@@ -101,10 +101,14 @@ class JobExecutionLogger(object):
 
                 # the container dict contains a "Labels" dict. However, keys of
                 # the latter container may have "." because they are the name of
-                # the labels (e.g. "com.docker.swarm.node.id"). Since "." in the
-                # key name is not allowed in mongoDB, we remove the "Labels" dict
-                evt.exception.container['Config']['Labels'] = \
-                    'Removed because labels names contain "." characters'
+                # the labels (e.g. "com.docker.swarm.node.id"). So we sanitize
+                # the names before storing
+
+                new_labels = {}
+                for k, v in evt.exception.container['Config']['Labels'].items():
+                    new_labels[k.replace('.','_dot_')] = v
+                evt.exception.container['Config']['Labels'] = new_labels
+
 
                 obj['container'] = evt.exception.container
 
