@@ -30,5 +30,7 @@ if __name__ == '__main__':
     os.environ['DOCKER_STORAGE_SECRET'] = 'storage'
     os.environ['DOCKER_ADDITIONAL_OPTS'] = 'hosts={"cloudpctn":"10.0.1.1"}'
     os.environ['BENCHSUITE_GLOBAL_TAGS'] = 'pippo'
+    os.environ['DOCKER_BENCHSUITE_IMAGE'] = 'benchsuite/benchsuite-multiexec:dev'
+
     main([])
 
