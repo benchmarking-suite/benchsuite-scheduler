@@ -23,7 +23,8 @@ from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, \
 from pymongo import MongoClient
 
 from benchsuite.scheduler.jobs.meta import print_scheduled_jobs_info
-from benchsuite.scheduler.synchronizer import JOB_ID_PREFIX
+from benchsuite.scheduler.synchronizer import JOB_ID_PREFIX, \
+    BENCHMARKING_JOBSTORE
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,9 @@ class JobExecutionLogger(object):
 
     def apscheduler_listener(self, evt):
 
+        if not hasattr(evt, 'jobstore') or evt.jobstore != BENCHMARKING_JOBSTORE:
+            return
+
         if evt.code == EVENT_JOB_EXECUTED:
             logger.info('[LOG] Job successfully executed')
             if self._log_success_execution:
@@ -67,7 +71,6 @@ class JobExecutionLogger(object):
             logger.info('[LOG] Job MISSED')
             if self._log_missed_execution:
                 self.__add_entry('MISSSED', evt)
-
 
         elif evt.code == EVENT_JOB_ADDED or \
             evt.code == EVENT_JOB_REMOVED or \

@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 JOB_ID_PREFIX = 'ap-'
+BENCHMARKING_JOBSTORE = 'benchmarking_jobs'
 
 def __build_args_list(schedule):
     args = [schedule.username,
@@ -70,7 +71,7 @@ def schedule_new_job(
 
     j = scheduler.add_job(benchmarking_job, trigger=trigger, id=id,
                           args=[schedule],
-                          jobstore='benchmarking_jobs',
+                          jobstore=BENCHMARKING_JOBSTORE,
                           max_instances=1,
                           coalesce=True,
                           # run immediately
