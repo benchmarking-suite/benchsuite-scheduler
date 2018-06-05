@@ -40,7 +40,7 @@ class JobExecutionLogger(object):
     _log_missed_execution = None
 
     def __init__(self, db_host, db_name, db_collection,
-                 log_success_execution=False,
+                 log_success_execution=True,
                  log_error_execution=True,
                  log_missed_execution=True):
 

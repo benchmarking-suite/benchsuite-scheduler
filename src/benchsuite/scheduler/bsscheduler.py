@@ -119,8 +119,8 @@ class BSScheduler(object):
             self.config.exec_db_host,
             self.config.exec_db_name,
             self.config.exec_db_collection,
-            log_missed_execution=False
         )
+
         self.scheduler.add_listener(
             self.jobslogger.apscheduler_listener, EVENT_ALL)
 
