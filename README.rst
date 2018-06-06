@@ -6,7 +6,3 @@ This component is a simple scheduler to execute and repeat Benchmarking Suite te
 | .. image:: http://www.consilium.europa.eu/images/img_flag-eu.gif |This work has received partial funding from the European Commission under grant agreement No.732258|
 +------------------------------------------------------------------+---------------------------------------------------------------------------------------------------+
 
-
-
-This work has received partial funding from the European Commission under grant agreement No.732258
-
