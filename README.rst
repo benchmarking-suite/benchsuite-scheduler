@@ -4,7 +4,7 @@ This component is a simple scheduler to execute and repeat Benchmarking Suite te
 
 Documentation
 =============
-The user manual and the developer guides of the Benchmarking Suite are available at http://benchmarking-suite.readthedocs.io/en/latest/
+User and technical documenation is available at http://benchmarking-suite.readthedocs.io/.
 
 Support
 =======
