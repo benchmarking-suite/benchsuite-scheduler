@@ -140,7 +140,8 @@ class DockerManager(object):
             service.reload()
             if len(service.tasks()) > 0:
                 task = service.tasks()[0]
-                if 'ContainerID' in task['Status']['ContainerStatus']:
+                if 'ContainerStatus' in task['Status'] and \
+                        'ContainerID' in task['Status']['ContainerStatus']:
                     cont_id = task['Status']['ContainerStatus']['ContainerID']
                     break
 
