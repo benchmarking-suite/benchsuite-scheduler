@@ -45,7 +45,10 @@ def benchmarking_job(schedule: BenchmarkingScheduleConfig):
 
     retval, log, cont_attrs = dockermanager.wait(instance)
 
-    dockermanager.remove_instance(instance)
+    if get_bsscheduler().config.keep_containers:
+        logger.warn('KEEP_CONTAINER flag is set, container will not be deleted')
+    else:
+        dockermanager.remove_instance(instance)
 
     if retval['StatusCode'] != 0:
         e = DockerJobFailedException(

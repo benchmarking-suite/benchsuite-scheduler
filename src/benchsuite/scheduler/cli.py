@@ -30,11 +30,11 @@ from benchsuite.scheduler.config import BenchsuiteSchedulerConfig
 
 logger = logging.getLogger(__name__)
 
+
 def on_exit(sig, func=None):
     get_bsscheduler().shutdown()
     print('Bye bye...')
     sys.exit(1)
-
 
 
 def get_config_parameters(config_file, use_env=True):
@@ -59,8 +59,6 @@ def get_config_parameters(config_file, use_env=True):
                 cfg[k] = os.environ[k]
 
     return cfg
-
-
 
 
 def main(args=None):

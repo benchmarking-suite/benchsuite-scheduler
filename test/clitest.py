@@ -16,7 +16,6 @@
 #
 # Developed in the ARTIST EU project (www.artist-project.eu) and in the
 # CloudPerfect EU project (https://cloudperfect.eu/)
-import sys
 
 import os
 
@@ -25,12 +24,14 @@ from benchsuite.scheduler.cli import main
 if __name__ == '__main__':
 
     os.environ['DB_HOST'] = 'mongodb://localhost:27017'
-    #os.environ['DOCKER_HOST'] = 'tcp://localhost:4550'
+    # os.environ['DOCKER_HOST'] = 'tcp://localhost:4550'
     os.environ['DOCKER_HOST'] = 'unix://var/run/docker.sock'
     os.environ['DOCKER_STORAGE_SECRET'] = 'storage'
     os.environ['DOCKER_ADDITIONAL_OPTS'] = 'hosts={"cloudpctn":"10.0.1.1"}'
     os.environ['BENCHSUITE_GLOBAL_TAGS'] = 'pippo'
-    os.environ['DOCKER_BENCHSUITE_IMAGE'] = 'benchsuite/benchsuite-multiexec:dev'
+    os.environ['DOCKER_BENCHSUITE_IMAGE'] = \
+        'benchsuite/benchsuite-multiexec:dev'
+    os.environ['KEEP_CONTAINERS'] = 'true'
 
     main([])
 

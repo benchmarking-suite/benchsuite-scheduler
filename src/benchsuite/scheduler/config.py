@@ -43,7 +43,9 @@ DEFAULTS = {
     'DOCKER_GLOBAL_ENV': '',
     'DOCKER_ADDITIONAL_OPTS': '',
     'BENCHSUITE_GLOBAL_TAGS': '',
-    'BENCHSUITE_ADDITIONAL_OPTS': ''
+    'BENCHSUITE_ADDITIONAL_OPTS': '',
+
+    'KEEP_CONTAINERS': 'False'
 }
 
 class BenchsuiteSchedulerConfig(object):
@@ -111,3 +113,6 @@ class BenchsuiteSchedulerConfig(object):
                 kstr, vstr = opt.split("=", maxsplit=1)
                 val = json.loads(vstr)
                 self.docker_additional_opts[kstr] = val
+
+        self.keep_containers = \
+            cfg['KEEP_CONTAINERS'].lower() in ['1', 'yes', 'true']
