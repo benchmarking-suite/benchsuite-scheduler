@@ -94,7 +94,7 @@ class JobExecutionLogger(object):
         starting_log = 'Exiting due to fatal error:'
 
         res = {'error': str(exception),
-               'error_code': exception.status_code,
+               'error_code': exception.status_code if hasattr(exception, 'status_code') else None,
                'error_log': None,
                'error_traceback': None}
 
