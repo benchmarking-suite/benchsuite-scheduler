@@ -70,8 +70,8 @@ class BenchsuiteSchedulerConfig(object):
         # override with user values
         cfg.update(user_config)
 
-        self.schedules_sync_interval = cfg['SCHEDULES_SYNC_INTERVAL']
-        self.print_jobs_info_interval = cfg['SCHEDULES_JOBS_PRINT_INTERVAL']
+        self.schedules_sync_interval = int(cfg['SCHEDULES_SYNC_INTERVAL'])
+        self.print_jobs_info_interval = int(cfg['SCHEDULES_JOBS_PRINT_INTERVAL'])
 
         self.schedules_db_host = cfg['SCHEDULES_DB_HOST'] or cfg['DB_HOST']
         self.schedules_db_name = cfg['SCHEDULES_DB_NAME'] or cfg['DB_NAME']
