@@ -28,6 +28,8 @@ from benchsuite.scheduler.synchronizer import JOB_ID_PREFIX, \
 
 logger = logging.getLogger(__name__)
 
+MONGO_SCHEMA_VER = 1
+
 class JobExecutionLogger(object):
     """
     provides methods to log the execution of jobs in the console and in a
@@ -39,6 +41,7 @@ class JobExecutionLogger(object):
     _log_success_execution = None
     _log_error_execution = None
     _log_missed_execution = None
+
 
     def __init__(self, db_host, db_name, db_collection,
                  log_success_execution=True,
@@ -82,23 +85,46 @@ class JobExecutionLogger(object):
         else:
             logger.debug('Received event code %s that is not managed', evt.code)
 
+
+    def _extract_exception_info(self, exception):
+
+        if not exception:
+            return {}
+
+        starting_log = 'Exiting due to fatal error:'
+
+        res = {'error': str(exception),
+               'error_code': exception.status_code,
+               'error_log': None,
+               'error_traceback': None}
+
+        if hasattr(exception, 'log'):
+            res['error_log'] = exception.log
+            start = exception.log.find(starting_log) + len(starting_log)
+            error_end = exception.log.find('\n', start)
+            res['error'] = exception.log[start+1:error_end]
+            res['error_traceback'] = exception.log[error_end+1:]
+
+        return res
+
+
     def __add_entry(self, status, evt):
         obj = {
             'status': status,
             'time': evt.scheduled_run_time,
             'ap_job_id': evt.job_id,
+            'schema_ver': MONGO_SCHEMA_VER,
         }
 
         if evt.job_id.startswith(JOB_ID_PREFIX):
             obj['schedule_id'] = evt.job_id[len(JOB_ID_PREFIX):]
 
-        if status == 'OK':
-            obj['retval'] = evt.retval
-
+        # add error info
         if status == 'ERROR':
-            obj['exception'] = str(evt.exception)
-            if hasattr(evt.exception, 'log'):
-                obj['error_log'] = evt.exception.log
+            obj.update(self._extract_exception_info(evt.exception))
+
+            # keep this for retrocompatibility
+            obj['exception'] = obj['error']
 
             if hasattr(evt.exception, 'container'):
 
@@ -112,12 +138,8 @@ class JobExecutionLogger(object):
                     new_labels[k.replace('.','_dot_')] = v
                 evt.exception.container['Config']['Labels'] = new_labels
 
-
                 obj['container'] = evt.exception.container
 
-            obj['traceback'] = evt.traceback
+            obj['docker_exception'] = evt.traceback
 
         self._client[self._db_name][self._db_collection].insert_one(obj)
-
-
-

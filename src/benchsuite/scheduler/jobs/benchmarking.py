@@ -31,8 +31,10 @@ class DockerJobFailedException(Exception):
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
-        self.retval = None
+        self.status_code = None
+        self.strerror = None
         self.log = None
+        self.container = None
 
 
 def benchmarking_job(schedule: BenchmarkingScheduleConfig):
@@ -51,8 +53,10 @@ def benchmarking_job(schedule: BenchmarkingScheduleConfig):
         dockermanager.remove_instance(instance)
 
     if retval['StatusCode'] != 0:
-        e = DockerJobFailedException(
-            'The execution exit with {0}'.format(retval))
+        msg = 'The execution exit with {0}'.format(retval)
+        e = DockerJobFailedException(msg)
+        e.strerror = msg
+        e.status_code = retval['StatusCode']
         e.log = log
         e.container = cont_attrs
         raise e
